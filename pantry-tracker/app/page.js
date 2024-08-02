@@ -163,11 +163,11 @@ export default function Home() {
       <Button variant="contained" onClick={()=> {
         handleOpen()
       }}>Add new Item</Button>
-      <Box border="1px solid #333">
-        <Box width="800px" height="100px" bgcolor="#ADD8E6" alignItems="center" justifyContent="center" display="flex">
-          <Typography variant="h2" color="#333">Current Inventory</Typography>
+      <Box border="1px solid #333" display="flex" flexDirection="column" width="800px" maxWidth="90vw" maxHeight="calc(100vh - 200px)" overflow="hidden">
+        <Box width="100%" bgcolor="#ADD8E6" alignItems="center" justifyContent="center" display="flex" p={2}>
+          <Typography variant="h3" color="#333">Current Inventory</Typography>
         </Box>
-      <Stack width="800px" height="300px" spacing={2} overflow="auto">
+      <Stack width="100%" minHeight="300px" spacing={2} overflow="auto" flexGrow={1} p={2}>
         {
           inventory.map(({name, quantity}) => (
             <Box
