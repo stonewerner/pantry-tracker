@@ -1,18 +1,25 @@
 'use client'
 import Image from "next/image";
 import { useState, useEffect } from 'react'
-import { firestore } from '@/firebase'
+import { useAuth } from '@/contexts/AuthContext'
+import { firestore, auth } from '@/firebase'
 import {Box, Modal, Typography, Stack, TextField, Button} from '@mui/material'
 //^ all of the html ish elements we use
-import {collection, deleteDoc, doc, query, getDocs, getDoc, setDoc} from 'firebase/firestore'
+import {collection, deleteDoc, doc, query, getDocs, getDoc, setDoc, where} from 'firebase/firestore'
+import { signOut } from 'firebase/auth';
+import SignIn from '@/components/SignIn';
+import SignUp from '@/components/SignUp';
 
 export default function Home() {
+  const { user } = useAuth();
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState("")
+  const [showSignUp, setShowSignUp] = useState(false);
 
   const updateInventory = async () => {
-    const snapshot = query(collection(firestore, 'inventory'))
+    if (!user) return;
+    const snapshot = query(collection(firestore, 'inventory'), where("userId", "==", user.uid));
     const docs = await getDocs(snapshot)
     const inventoryList = []
     docs.forEach((doc) => {
@@ -27,8 +34,9 @@ export default function Home() {
   //calls inventory whenever something changes in dependency list
   //because it is empty, it only runs when page loads
   useEffect(() => {
-    updateInventory()
-  }, [])
+    if (user) 
+    {updateInventory()}
+  }, [user])
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -41,7 +49,7 @@ export default function Home() {
       if (quantity === 1) {
         await deleteDoc(docRef)
       } else {
-        await setDoc(docRef, {quantity: quantity - 1})
+        await setDoc(docRef, { quantity: quantity - 1, userId: user.uid });
       }
     }
     await updateInventory()
@@ -52,13 +60,42 @@ export default function Home() {
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const {quantity} = docSnap.data()
-      await setDoc(docRef, {quantity: quantity + 1})
+      await setDoc(docRef, { quantity: quantity + 1, userId: user.uid });
     } else {
-      await setDoc(docRef, {quantity: 1})
+      await setDoc(docRef, {quantity: 1, userId: user.uid })
 
     }
     await updateInventory()
   }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
+//page if user is not signed in
+  if (!user) {
+    return (
+      <Box
+        width="100vw"
+        height="100vh"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        gap={2}
+      >
+        {showSignUp ? <SignUp /> : <SignIn />}
+        <Button onClick={() => setShowSignUp(!showSignUp)}>
+          {showSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+        </Button>
+      </Box>
+    );
+  }
+
 
 
 
@@ -151,6 +188,7 @@ export default function Home() {
 
       </Stack>
       </Box>
+      <Button variant="contained" onClick={handleSignOut}>Sign Out</Button>
     </Box>
 
   );
