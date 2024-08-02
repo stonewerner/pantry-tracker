@@ -172,11 +172,11 @@ export default function Home() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={clearSearch}>
+                    <IconButton onClick={clearSearch} style={{ color: 'white' }}>
                       <ClearIcon />
                     </IconButton>
                   </InputAdornment>
-                ),
+                ), style: { color: 'white' }
               }}
               style={{ marginRight: '16px', color: 'white' }}
           />
