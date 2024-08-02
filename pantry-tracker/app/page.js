@@ -160,7 +160,7 @@ export default function Home() {
 
       </Modal>
       
-      <Button variant="contained" onClick={()=> {
+      <Button variant="contained" p={3} onClick={()=> {
         handleOpen()
       }}>Add new Item</Button>
       <Box border="1px solid #333" display="flex" flexDirection="column" width="800px" maxWidth="90vw" maxHeight="calc(100vh - 200px)" overflow="hidden">
