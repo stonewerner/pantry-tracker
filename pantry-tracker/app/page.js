@@ -3,7 +3,8 @@ import Image from "next/image";
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { firestore, auth } from '@/firebase'
-import {Box, Modal, Typography, Stack, TextField, Button} from '@mui/material'
+import {Box, Modal, Typography, Stack, TextField, Button, AppBar, Toolbar, IconButton} from '@mui/material'
+//import MenuIcon from '@mui/icons-material/Menu';
 //^ all of the html ish elements we use
 import {collection, deleteDoc, doc, query, getDocs, getDoc, setDoc, where} from 'firebase/firestore'
 import { signOut } from 'firebase/auth';
@@ -109,6 +110,17 @@ export default function Home() {
       alignItems="center"
       gap={2}
       >
+      <AppBar position="fixed">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            
+          </IconButton>
+          <Typography variant="h6" style={{ flexGrow: 1 }}>
+            Inventory Management
+          </Typography>
+          <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
+        </Toolbar>
+      </AppBar>
       <Modal open={open} onClose={handleClose}>
         <Box
         position="absolute"
@@ -148,7 +160,6 @@ export default function Home() {
 
       </Modal>
       
-      <Typography variant="h1">Inventory Management</Typography>
       <Button variant="contained" onClick={()=> {
         handleOpen()
       }}>Add new Item</Button>
@@ -188,8 +199,12 @@ export default function Home() {
 
       </Stack>
       </Box>
-      <Button variant="contained" onClick={handleSignOut}>Sign Out</Button>
     </Box>
 
   );
 }
+
+//todo
+//install material icons
+//<MenuIcon />
+//add a search icon top right of app bar
