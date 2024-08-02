@@ -17,9 +17,10 @@ import WelcomeScreen from '@/components/WelcomeScreen';
 
 export default function Home() {
   const { user, signInAnonymously } = useAuth();
-  const [inventory, setInventory] = useState([])
-  const [open, setOpen] = useState(false)
-  const [itemName, setItemName] = useState("")
+  const [inventory, setInventory] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [itemName, setItemName] = useState("");
+  const [itemQuantity, setItemQuantity] = useState(1);
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -87,14 +88,14 @@ export default function Home() {
     await updateInventory()
   }
 
-  const addItem = async (item) => {
+  const addItem = async (item, quantity1) => {
     const docRef = doc(collection(firestore, 'inventory'), item)
     const docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       const {quantity} = docSnap.data()
       await setDoc(docRef, { quantity: quantity + 1, userId: user.uid });
     } else {
-      await setDoc(docRef, {quantity: 1, userId: user.uid })
+      await setDoc(docRef, {quantity: quantity1, userId: user.uid })
 
     }
     await updateInventory()
@@ -207,6 +208,7 @@ export default function Home() {
           <Typography variant="h6">Add Item</Typography>
           <Stack width="100%" direction="row" spacing={2}>
             <TextField
+            label="Item Name"
             variant="outlined"
             fullWidth
             value={itemName}
@@ -214,9 +216,19 @@ export default function Home() {
               setItemName(e.target.value)
             }}
             ></TextField>
+            <TextField
+              label="Quantity"
+              type="number"
+              variant="outlined"
+              fullWidth
+              value={itemQuantity}
+              onChange={(e) => setItemQuantity(Math.max(1, parseInt(e.target.value) || 0))}
+              InputProps={{ inputProps: { min: 1 } }}
+            />
             <Button variant="contained" onClick={()=> {
-              addItem(itemName)
+              addItem(itemName, itemQuantity)
               setItemName('')
+              setItemQuantity(1)
               handleClose() //because we are closing the db
             }}>Add</Button>
 
