@@ -1,11 +1,14 @@
 'use client'
 import Image from "next/image";
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { firestore, auth } from '@/firebase'
-import {Box, Modal, Typography, Stack, TextField, Button, AppBar, Toolbar, IconButton} from '@mui/material'
-//import MenuIcon from '@mui/icons-material/Menu';
+import {Box, Modal, Typography, Stack, TextField, Button, AppBar, Toolbar, IconButton, InputAdornment} from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 //^ all of the html ish elements we use
+import debounce from 'lodash/debounce';
 import {collection, deleteDoc, doc, query, getDocs, getDoc, setDoc, where} from 'firebase/firestore'
 import { signOut } from 'firebase/auth';
 import SignIn from '@/components/SignIn';
@@ -17,6 +20,8 @@ export default function Home() {
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState("")
   const [showSignUp, setShowSignUp] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const updateInventory = async () => {
     if (!user) return;
@@ -38,6 +43,30 @@ export default function Home() {
     if (user) 
     {updateInventory()}
   }, [user])
+
+
+  //search logic
+  const filteredInventory = useMemo(() => {
+    if (!searchQuery) return inventory;
+    return inventory.filter(item => 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [inventory, searchQuery]);
+
+  const debouncedSearch = useMemo(
+    () => debounce((query) => setSearchQuery(query), 300),
+    []
+  );
+
+  const handleSearchChange = (event) => {
+    debouncedSearch(event.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setIsSearchVisible(false);
+  };
+
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
@@ -113,11 +142,32 @@ export default function Home() {
       <AppBar position="fixed">
         <Toolbar>
           <IconButton edge="start" color="inherit" aria-label="menu">
-            
+            <MenuIcon />
           </IconButton>
           <Typography variant="h6" style={{ flexGrow: 1 }}>
             Inventory Management
           </Typography>
+          {isSearchVisible ? (
+            <TextField
+              variant="standard"
+              placeholder="Search inventory..."
+              onChange={handleSearchChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={clearSearch}>
+                      <ClearIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              style={{ marginRight: '16px', color: 'white' }}
+          />
+        ) : (
+            <IconButton color="inherit" onClick={() => setIsSearchVisible(true)}>
+              <SearchIcon />
+            </IconButton>
+          )}
           <Button color="inherit" onClick={handleSignOut}>Sign Out</Button>
         </Toolbar>
       </AppBar>
@@ -168,8 +218,8 @@ export default function Home() {
           <Typography variant="h3" color="#333">Current Inventory</Typography>
         </Box>
       <Stack width="100%" minHeight="300px" spacing={2} overflow="auto" flexGrow={1} p={2}>
-        {
-          inventory.map(({name, quantity}) => (
+        {filteredInventory.length > 0 ? (
+          filteredInventory.map(({name, quantity}) => (
             <Box
             key={name}
             width="100%"
@@ -195,6 +245,11 @@ export default function Home() {
             </Stack></Box>
             
         ))
+        ) : (
+          <Typography variant="h6" textAlign="center">
+            No items found matching your search.
+          </Typography>
+        )
         }
 
       </Stack>
@@ -207,4 +262,5 @@ export default function Home() {
 //todo
 //install material icons
 //<MenuIcon />
+//<ClearIcon />
 //add a search icon top right of app bar
