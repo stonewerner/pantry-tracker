@@ -108,6 +108,15 @@ export default function Home() {
     }
   };
 
+  const handleAnonymousSignIn = async () => {
+    try {
+      await signInAnonymously();
+    } catch (error) {
+      console.error("Error signing in anonymously:", error);
+      // Handle error (e.g., show an error message to the user)
+    }
+  };
+
 //page if user is not signed in
   if (!user) {
     return (
@@ -123,7 +132,7 @@ export default function Home() {
         <WelcomeScreen
           onSignIn={() => setShowSignIn(true)}
           onSignUp={() => setShowSignUp(true)}
-          onAnonymous={signInAnonymously}
+          onAnonymous={handleAnonymousSignIn}
         />
         {showSignUp ? <SignUp /> : <SignIn />}
         <Button onClick={() => setShowSignUp(!showSignUp)}>

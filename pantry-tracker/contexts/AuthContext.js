@@ -27,12 +27,14 @@ export function AuthProvider({ children }) {
       await signInAnonymousUser();
     } catch (error) {
       console.error("Error signing in anonymously:", error);
+      throw error; //throw again so it can be caught in the component
     }
   };
 
   const value = {
     user,
-    loading
+    loading,
+    signInAnonymously
   };
 
   return (
