@@ -1,6 +1,6 @@
 // contexts/AuthContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '@/firebase';
+import { auth, signInAnonymousUser } from '@/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -21,6 +21,14 @@ export function AuthProvider({ children }) {
 
     return unsubscribe;
   }, []);
+
+  const signInAnonymously = async () => {
+    try {
+      await signInAnonymousUser();
+    } catch (error) {
+      console.error("Error signing in anonymously:", error);
+    }
+  };
 
   const value = {
     user,

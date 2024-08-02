@@ -13,13 +13,15 @@ import {collection, deleteDoc, doc, query, getDocs, getDoc, setDoc, where} from 
 import { signOut } from 'firebase/auth';
 import SignIn from '@/components/SignIn';
 import SignUp from '@/components/SignUp';
+import WelcomeScreen from '@/components/WelcomeScreen';
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, signInAnonymously } = useAuth();
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState("")
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
@@ -118,6 +120,11 @@ export default function Home() {
         alignItems="center"
         gap={2}
       >
+        <WelcomeScreen
+          onSignIn={() => setShowSignIn(true)}
+          onSignUp={() => setShowSignUp(true)}
+          onAnonymous={signInAnonymously}
+        />
         {showSignUp ? <SignUp /> : <SignIn />}
         <Button onClick={() => setShowSignUp(!showSignUp)}>
           {showSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
